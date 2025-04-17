@@ -1,0 +1,710 @@
+:root {
+    --primary-color: #4a90e2; /* Blue */
+    --secondary-color: #6c757d; /* Gray */
+    --danger-color: #dc3545; /* Red */
+    --success-color: #28a745; /* Green */
+    --warning-color: #ffc107; /* Yellow */
+    --light-color: #f8f9fa; /* Light Gray */
+    --dark-color: #343a40; /* Dark Gray */
+    --background-color: #f4f7fc;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --border-color: #e0e0e0;
+    --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    --box-shadow-hover: 0 4px 10px rgba(0, 0, 0, 0.1);
+    --border-radius: 6px;
+}
+
+body, h1, h2, h3, p, ul, li, button, input, textarea, table, select, fieldset, legend {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 900px; /* Slightly wider */
+    margin: 20px auto;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden; /* Keep content within rounded corners */
+}
+
+header {
+    background-color: var(--primary-color);
+    color: var(--card-background);
+    padding: 20px 25px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left; /* Align header text left */
+}
+
+header h1 {
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+header h2 {
+    font-size: 1.1em;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+/* Admin specific header info */
+#admin-info {
+    text-align: right; /* Align admin info right */
+    font-size: 0.9em;
+    margin-top: -25px; /* Adjust position */
+}
+
+#admin-info button {
+    margin-left: 10px;
+}
+
+main {
+    padding: 25px;
+}
+
+section {
+    margin-bottom: 30px;
+    background-color: var(--card-background);
+    padding: 20px 25px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow);
+}
+
+h2 {
+    font-size: 1.5em;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    font-weight: 600;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+footer {
+    background-color: var(--light-color);
+    padding: 15px 25px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    display: flex; /* Use flexbox for button alignment */
+    flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+    gap: 10px; /* Add gap between buttons */
+    justify-content: center; /* Center buttons */
+}
+
+footer button {
+    flex-grow: 1; /* Allow buttons to grow */
+    min-width: 120px; /* Set minimum width */
+}
+
+footer p { /* Existing copyright */
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: var(--secondary-color);
+}
+
+/* Input Area */
+.input-area textarea {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 1em;
+    margin-bottom: 10px;
+    font-family: monospace; /* Better for code-like pasting */
+}
+
+.input-area .buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* --- Buttons --- */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+button:not(:disabled):hover {
+    box-shadow: var(--box-shadow-hover);
+    transform: translateY(-1px);
+}
+
+button.primary {
+    background-color: var(--primary-color);
+    color: var(--card-background);
+}
+button.primary:not(:disabled):hover {
+    background-color: #3a80d2; /* Slightly darker blue */
+}
+
+button.secondary {
+    background-color: var(--secondary-color);
+    color: var(--card-background);
+}
+button.secondary:not(:disabled):hover {
+    background-color: #5a6268; /* Slightly darker gray */
+}
+
+button.danger {
+    background-color: var(--danger-color);
+    color: var(--card-background);
+}
+button.danger:not(:disabled):hover {
+    background-color: #c82333; /* Slightly darker red */
+}
+
+button.small {
+    padding: 6px 12px;
+    font-size: 0.85em;
+}
+
+button.active {
+    background-color: var(--success-color);
+    color: white;
+}
+
+/* Participant List */
+.participant-section .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#participantList {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+/* Participant list item WITH settings */
+.participant-item-settings {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto auto; /* Avatar, Name, Label, Input, Label, Input */
+    gap: 10px 15px;
+    align-items: center;
+    background-color: var(--light-color);
+    border: 1px solid var(--border-color);
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: var(--border-radius);
+}
+
+.participant-item-settings .participant-avatar {
+    grid-row: 1 / 3; /* Span two rows */
+}
+
+.participant-item-settings .participant-name {
+    grid-column: 2 / 3;
+    grid-row: 1 / 3; /* Span two rows */
+    font-weight: 500;
+}
+
+.participant-item-settings label {
+    margin-bottom: 0; /* Remove bottom margin for grid layout */
+    text-align: right;
+    font-size: 0.85em;
+}
+
+.participant-item-settings input[type="number"] {
+    width: 60px; /* Fixed width for small number inputs */
+    padding: 5px 8px;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+/* Input groups within participant section */
+.match-count-input,
+.game-duration-input {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.match-count-input label,
+.game-duration-input label {
+    margin-bottom: 0;
+}
+
+.match-count-input input[type="number"],
+.game-duration-input input[type="number"] {
+    width: 80px;
+}
+
+/* --- Court Config --- */
+.court-config-section #court-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.court-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--light-color);
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.court-item label {
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+.court-item input[type="time"] {
+    width: auto; /* Allow time input to size itself */
+    padding: 5px 8px;
+}
+
+.court-item .remove-court-btn {
+    margin-left: auto; /* Push remove button to the right */
+}
+
+/* --- Match Section --- */
+.match-section .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+#matchList {
+    display: grid;
+    gap: 20px; /* Increased gap */
+}
+
+.match-card {
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 15px 20px;
+    display: grid;
+    grid-template-areas:
+        "schedule schedule schedule"
+        "team1 vs team2"
+        "score score score"
+        "actions actions actions";
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px 15px;
+    align-items: center;
+    box-shadow: var(--box-shadow);
+    transition: box-shadow 0.2s ease;
+}
+
+.match-card:hover {
+    box-shadow: var(--box-shadow-hover);
+}
+
+.match-card .schedule-info {
+    grid-area: schedule;
+    font-size: 0.9em;
+    color: var(--secondary-color);
+    text-align: center;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.match-card .team {
+    grid-area: auto; /* Let grid place team1 and team2 */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.match-card .team .player {
+    display: flex;
+    align-items: center;
+    background-color: var(--light-color);
+    padding: 6px 12px;
+    border-radius: 15px; /* More rounded */
+    font-size: 0.95em;
+    border: 1px solid var(--border-color);
+}
+
+.participant-avatar,
+.player-avatar /* Combine styles */
+{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+    color: var(--card-background);
+    font-weight: bold;
+    margin-right: 8px;
+    font-size: 0.9em;
+    flex-shrink: 0;
+    line-height: 1; /* Ensure text is centered */
+}
+
+.match-card .vs {
+    grid-area: vs;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.match-card .score-input {
+    grid-area: score;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.match-card .score-input input[type="number"] {
+    width: 60px;
+    text-align: center;
+    font-size: 1em;
+    padding: 6px;
+}
+
+.match-card .actions {
+    grid-area: actions;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top: 1px dashed var(--border-color);
+}
+
+/* --- Results Section --- */
+.results-section .tabs {
+    display: flex;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.results-section .tab {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    color: var(--secondary-color);
+    font-weight: 500;
+    transition: color 0.2s ease, border-bottom-color 0.2s ease;
+}
+
+.results-section .tab:hover {
+    color: var(--primary-color);
+}
+
+.results-section .tab.active {
+    border-bottom-color: var(--primary-color);
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+#resultsTable, #cumulativeResultsTable, #summaryTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+#resultsTable th, #resultsTable td,
+#cumulativeResultsTable th, #cumulativeResultsTable td,
+#summaryTable th, #summaryTable td {
+    padding: 12px 10px; /* Increased padding */
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95em;
+}
+
+#resultsTable th,
+#cumulativeResultsTable th,
+#summaryTable th {
+    background-color: var(--light-color);
+    font-weight: 600;
+    color: var(--dark-color);
+    white-space: nowrap;
+}
+
+#resultsTable tbody tr:nth-child(odd),
+#cumulativeResultsTable tbody tr:nth-child(odd),
+#summaryTable tbody tr:nth-child(odd) {
+    background-color: #fdfdfd;
+}
+
+#resultsTable tbody tr:hover,
+#cumulativeResultsTable tbody tr:hover,
+#summaryTable tbody tr:hover {
+    background-color: #f1f8ff; /* Light blue hover */
+}
+
+#resultsTable td:first-child,
+#cumulativeResultsTable td:first-child,
+#summaryTable td:first-child {
+    font-weight: bold;
+}
+
+#resultsTable td:nth-child(2),
+#cumulativeResultsTable td:nth-child(2),
+#summaryTable td:nth-child(2) {
+    text-align: left; /* Align player names left */
+    display: flex;
+    align-items: center;
+}
+
+/* --- Modals --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    padding: 25px 30px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    max-width: 600px; /* Limit modal width */
+    width: 100%;
+    max-height: 90vh; /* Limit height */
+    overflow-y: auto; /* Add scroll if content overflows */
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.6em;
+}
+
+/* Specific Modal Styles */
+#savedGamesList {
+    list-style: none;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+#savedGamesList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 5px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#savedGamesList li:hover {
+    background-color: #f1f8ff;
+}
+
+#savedGamesList li span:first-child {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+#savedGamesList li .delete-save {
+    flex-shrink: 0;
+}
+
+/* Modify Players Modal Specifics */
+.modify-teams-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+fieldset {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+}
+
+legend {
+    font-weight: 600;
+    padding: 0 10px;
+    color: var(--primary-color);
+}
+
+/* Admin Page Specifics */
+.admin-club-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    background-color: var(--card-background);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping */
+    gap: 15px;
+    box-shadow: var(--box-shadow);
+}
+
+.admin-club-card .club-info {
+    flex-grow: 1;
+}
+
+.admin-club-card h3 {
+    margin: 0 0 5px 0;
+    color: var(--primary-color);
+}
+
+.admin-club-card p {
+    margin: 0 0 10px 0;
+    font-size: 0.95em;
+    color: var(--secondary-color);
+}
+
+.admin-club-card .club-details span {
+    display: inline-block;
+    margin-right: 15px;
+    font-size: 0.9em;
+    color: var(--secondary-color);
+    background-color: var(--light-color);
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.admin-club-card .club-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap; /* Allow actions to wrap */
+}
+
+.admin-item {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     padding: 10px 5px;
+     border-bottom: 1px solid var(--border-color);
+}
+
+.error-message {
+    color: var(--danger-color);
+    font-size: 0.9em;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px auto;
+        max-width: 100%;
+    }
+    header, main, section, footer {
+        padding: 15px;
+    }
+    h2 {
+        font-size: 1.3em;
+    }
+    .modify-teams-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .admin-club-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .admin-club-card .club-actions {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: flex-end;
+    }
+    footer {
+        justify-content: space-around; /* Better button spacing */
+    }
+}
+
+@media (max-width: 600px) {
+    body { padding: 10px; }
+    .match-card {
+        grid-template-areas:
+            "schedule schedule"
+            "team1 vs"
+            "team2 team2"
+            "score score"
+            "actions actions";
+        grid-template-columns: 1fr auto;
+        padding: 12px;
+    }
+    .match-card .team { align-items: flex-start; }
+    .match-card .team:last-of-type { grid-column: 1 / -1; }
+    .match-card .vs { grid-row: 2; grid-column: 2;}
+    #resultsTable th, #resultsTable td,
+    #cumulativeResultsTable th, #cumulativeResultsTable td,
+    #summaryTable th, #summaryTable td {
+        padding: 8px 5px;
+        font-size: 0.9em;
+    }
+    .participant-item-settings {
+        grid-template-columns: auto 1fr; /* Simpler grid */
+        gap: 8px 10px;
+    }
+     .participant-item-settings .participant-avatar {
+         grid-row: 1 / 2;
+     }
+     .participant-item-settings .participant-name {
+         grid-column: 2 / 3;
+         grid-row: 1 / 2;
+     }
+     .participant-item-settings label {
+         grid-column: 1 / 2;
+         text-align: left;
+         font-size: 0.8em;
+     }
+      .participant-item-settings input[type="number"] {
+          grid-column: 2 / 3;
+          width: 100%;
+      }
+      /* Hide labels on smallest screens */
+      .participant-item-settings label:nth-of-type(1) { grid-row: 2;} 
+      .participant-item-settings input:nth-of-type(1) { grid-row: 2;} 
+      .participant-item-settings label:nth-of-type(2) { grid-row: 3;} 
+      .participant-item-settings input:nth-of-type(2) { grid-row: 3;} 
+} 

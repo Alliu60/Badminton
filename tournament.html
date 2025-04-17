@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>俱乐部 - 羽毛球双打循环赛</title> <!-- Updated Title -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <!-- End Supabase SDK -->
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>羽毛球双打循环赛</h1>
+            <!-- Added placeholder for club name -->
+            <h2 id="club-name-display" style="text-align: center; margin-top: 5px; color: #555;"></h2>
+        </header>
+        <main>
+            <!-- 1. 报名区域 -->
+            <section class="input-area">
+                <h2>复制接龙报名</h2>
+                <textarea id="nameInput" placeholder="示例:
+1、林丹
+2、何冰娇
+3、安赛龙
+4、李宗伟
+..."></textarea>
+                <div class="buttons">
+                    <button id="clearButton" class="secondary">清空</button>
+                    <button id="pasteButton" class="secondary">从剪贴板粘贴</button>
+                </div>
+            </section>
+
+            <!-- 2. 报名名单 -->
+            <section class="participant-section">
+                <div class="header">
+                    <h2>报名名单</h2>
+                    <span><span id="participantCount">0</span>人</span>
+                </div>
+                <ul id="participantList">
+                    <!-- Participants will be added here by JS -->
+                </ul>
+                <!-- Added Input for Total Matches -->
+                <div class="match-count-input" style="margin-top: 15px;">
+                     <label for="totalMatchInput">期望总局数: </label>
+                     <input type="number" id="totalMatchInput" min="1" placeholder="自动计算">
+                 </div>
+                <!-- NEW: Game Duration Input -->
+                <div class="game-duration-input" style="margin-top: 15px;">
+                     <label for="gameDurationInput">每局时间 (分钟): </label>
+                     <input type="number" id="gameDurationInput" min="5" max="30" value="12" style="width: 60px;">
+                 </div>
+                <button id="generateButton" class="primary" style="margin-top: 15px;">创建并生成对阵</button>
+            </section>
+
+            <!-- NEW: Court Configuration Section -->
+            <section id="court-config-section" class="court-config-section">
+                <h2>场地设置</h2>
+                <div id="court-list">
+                    <!-- Court time inputs will be rendered here by tournament.js -->
+                    <p>请先登录管理员以设置场地。</p> 
+                </div>
+                <button id="add-court-button" class="secondary small" style="margin-top: 10px;" disabled>+ 添加场地</button>
+            </section>
+            <!-- END: Court Configuration Section -->
+
+            <!-- 3. 对局计分 -->
+            <section class="match-section">
+                <div class="header">
+                    <h2>对局计分</h2>
+                    <span id="matchProgress">0/0 场</span>
+                </div>
+                <div id="matchList">
+                    <!-- Matches will be added here by JS -->
+                    <p>请先生成对阵。</p>
+                </div>
+            </section>
+
+            <!-- 4. 比赛成绩 -->
+            <section class="results-section">
+                 <div class="tabs">
+                    <!-- Add tabs if needed later, e.g., for different views -->
+                    <div class="tab active">比赛成绩</div>
+                </div>
+                <h2>比赛成绩 (本次活动)</h2>
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>组合</th>
+                            <th>胜负</th>
+                            <th>胜率</th>
+                            <th>净胜分</th>
+                            <th>平均得失分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Results populated by JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- NEW Cumulative Results Section -->
+            <section class="cumulative-results-section" id="cumulative-results-section" style="margin-top: 30px;">
+                <h2>累计排名 (俱乐部总计)</h2>
+                <table id="cumulativeResultsTable">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>队员</th>
+                            <th>参加次数</th>
+                            <th>总局数</th>
+                            <th>总胜率</th>
+                            <th>总得分比</th>
+                            <!-- Optional: Add Wins/Losses/Net Points -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Cumulative results populated by JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- NEW: Summary Section (Initially Hidden) -->
+            <section id="summary-section" class="results-section" style="display: none;">
+                <h2>个人汇总统计</h2>
+                 <table id="summaryTable">
+                     <thead>
+                         <tr>
+                             <th>排名</th>
+                             <th>队员</th>
+                             <th>活动次数</th> <!-- Placeholder -->
+                             <th>总局数</th>
+                             <th>胜率</th>
+                             <th>得失分比</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                         <!-- Summary results will be added here by JS -->
+                     </tbody>
+                 </table>
+                 <button id="generateSummaryButton" class="primary" style="margin-top: 15px;">生成/刷新汇总</button> 
+            </section>
+            <!-- END: Summary Section -->
+
+        </main>
+
+        <footer>
+             <!-- Login button might be repurposed or removed depending on final auth flow -->
+            <button id="loginLogoutButton" class="secondary">登录</button>
+            <button id="resetButton" class="secondary" disabled>重算</button>
+             <!-- Save/Load will be club-specific -->
+            <button id="saveButton" class="secondary" disabled>保存状态</button>
+            <button id="loadButton" class="secondary">加载状态</button>
+            <!-- NEW Cumulative Summary Button -->
+            <button id="cumulativeSummaryButton" class="secondary" disabled>汇总成绩</button>
+            <button id="exportButton">导出HTML</button>
+            <!-- Added Back Button -->
+            <button id="backToClubsButton" class="secondary">返回俱乐部列表</button>
+        </footer>
+    </div>
+
+    <!-- Load Game Modal -->
+    <div id="loadModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>加载已保存的状态</h2> <!-- Title might need adjustment -->
+            <ul id="savedGamesList"></ul>
+            <button id="closeLoadModal" class="secondary">关闭</button>
+        </div>
+    </div>
+
+    <!-- Login Modal (New) -->
+    <div id="loginModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+             <!-- This modal might be reused for admin actions within the tournament context -->
+            <h2>登录以启用编辑</h2>
+            <div class="form-group">
+                <label for="passwordInput">密码:</label>
+                <input type="password" id="passwordInput" class="modal-input">
+            </div>
+            <button id="loginSubmitButton" class="primary">登录</button>
+            <button id="closeLoginModal" class="secondary">取消</button>
+        </div>
+    </div>
+
+    <!-- NEW: Modify Players Modal -->
+    <div id="modify-players-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>修改对阵人员</h2>
+            <input type="hidden" id="edit-match-index-input"> <!-- To store which match is being edited -->
+            <div class="modify-teams-grid">
+                <fieldset>
+                    <legend>队伍 1</legend>
+                    <div class="form-group">
+                        <label for="modify-t1-p1">队员 1:</label>
+                        <select id="modify-t1-p1" class="modal-input player-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modify-t1-p2">队员 2:</label>
+                        <select id="modify-t1-p2" class="modal-input player-select"></select>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>队伍 2</legend>
+                    <div class="form-group">
+                        <label for="modify-t2-p1">队员 1:</label>
+                        <select id="modify-t2-p1" class="modal-input player-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modify-t2-p2">队员 2:</label>
+                        <select id="modify-t2-p2" class="modal-input player-select"></select>
+                    </div>
+                </fieldset>
+            </div>
+             <p id="modify-players-error" style="color: red; display: none; margin-top: 10px;">错误信息。</p>
+            <div class="modal-buttons">
+                <button id="save-player-changes" class="primary">保存更改</button>
+                <button id="cancel-player-changes" class="secondary">取消</button>
+            </div>
+        </div>
+    </div>
+    <!-- END: Modify Players Modal -->
+
+    <script src="supabase-config.js"></script> <!-- Supabase配置文件 -->
+    <script src="tournament.js"></script>
+</body>
+</html>

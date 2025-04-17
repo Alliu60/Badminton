@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN"> <!-- Keep language as Chinese based on original -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择羽毛球俱乐部</title> <!-- Changed Title -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <!-- End Supabase SDK -->
+</head>
+<body>
+    <div class="container"> <!-- Reuse existing container for consistent styling -->
+        <header>
+            <h1>选择俱乐部</h1>
+        </header>
+
+        <main>
+            <section id="club-selection-section">
+                <h2>俱乐部列表</h2>
+                <div id="club-list">
+                    <!-- Clubs will be loaded here by JavaScript -->
+                    <p>正在加载俱乐部...</p>
+                </div>
+            </section>
+
+            <section id="pin-entry-section" style="display: none; margin-top: 20px;">
+                <h2 id="selected-club-name"></h2>
+                <div class="form-group">
+                    <label for="pin">输入 PIN:</label>
+                    <input type="password" id="pin" name="pin" class="modal-input" autocomplete="one-time-code">
+                </div>
+                <button id="submit-pin" class="primary">进入俱乐部</button>
+                <button id="cancel-pin" class="secondary">取消</button>
+                <p id="pin-error" style="color: red; display: none; margin-top: 10px;">PIN 码错误。</p>
+            </section>
+
+             <!-- Placeholder for Admin Login - refine later -->
+            <section id="admin-login-section" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+                <h2>管理员入口</h2>
+                <button id="admin-login-button" class="secondary">管理员登录</button>
+                <!-- Admin login form/modal trigger can go here -->
+            </section>
+        </main>
+
+        <footer>
+            <!-- Footer might be simpler on this page -->
+            <p>&copy; 2025 Tournament Scheduler</p>
+        </footer>
+
+    </div> <!-- End container -->
+
+    <!-- We might need modals for admin login later -->
+
+    <script src="supabase-config.js"></script> <!-- Supabase配置文件 -->
+    <script src="index.js"></script> <!-- New JS file for this page's logic -->
+</body>
+</html>
