@@ -64,8 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // -- Constants for Scheduling --
     // Remove old constants, use dynamic values now
     // const GAME_DURATION_MINUTES = 12;
-    // const MAX_CONSECUTIVE_GAMES_STANDARD = 3; 
-    // const MAX_CONSECUTIVE_GAMES_LESS = 2;     
+    // const MAX_CONSECUTIVE_GAMES_STANDARD = 3;
+    // const MAX_CONSECUTIVE_GAMES_LESS = 2;
 
     // Target games based on participant count (adjust as needed)
     const targetMatchCounts = {
@@ -96,33 +96,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initialization Function (Called Directly) ---
     async function initializeTournamentPage() { // Make async
         console.log("Initializing tournament page...");
-        // 1. Get Club ID and Name 
+        // 1. Get Club ID and Name
         currentClubId = sessionStorage.getItem('currentClubId');
         currentClubName = sessionStorage.getItem('currentClubName') || '未知俱乐部';
 
         if (!currentClubId) {
             console.error("Club ID not found! Redirecting...");
             alert("错误：未指定俱乐部。将返回俱乐部选择页面。");
-            window.location.href = 'index.html'; 
-            return false; 
+            window.location.href = 'index.html';
+            return false;
         }
         console.log(`Loaded Club: ${currentClubName} (ID: ${currentClubId})`);
-        clubNameDisplay.textContent = `俱乐部: ${currentClubName}`; 
+        clubNameDisplay.textContent = `俱乐部: ${currentClubName}`;
 
         // Fetch the club's admin password and WAIT for it to complete
-        const passwordFetched = await fetchClubAdminPassword(); 
-        
+        const passwordFetched = await fetchClubAdminPassword();
+
         // 3. Add event listeners (Now added *after* password fetch attempt)
         addTournamentEventListeners();
 
         // 5. Initial UI state - Always start disabled
-        disableEditing(); 
-        
-        // Load court config initially 
+        disableEditing();
+
+        // Load court config initially
         loadCourtConfig();
         displayCourtConfig();
 
-        // --- NEW: Load and display initial cumulative stats --- 
+        // --- NEW: Load and display initial cumulative stats ---
         console.log("Fetching initial cumulative stats...");
         const initialCumulativeStats = await fetchCumulativeStats(currentClubId);
         if (initialCumulativeStats !== null) {
@@ -134,9 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
                  cumulativeResultsTableBody.innerHTML = '<tr><td colspan="6">无法加载累计排名数据。</td></tr>';
             }
         }
-        // --- END NEW --- 
+        // --- END NEW ---
 
-        return true; 
+        return true;
     }
 
     // --- Fetch Club Admin Password (returns boolean success) ---
@@ -148,13 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 .select('"adminPassword"')
                 .eq('id', currentClubId)
                 .single();
-            
+
             if (error) throw error;
-            
+
             if (club) {
                 clubAdminPassword = club.adminPassword;
                 if (clubAdminPassword) {
-                    console.log("Club admin password fetched successfully."); 
+                    console.log("Club admin password fetched successfully.");
                     loginLogoutButton.disabled = false; // Ensure button is enabled if fetch succeeds
                     return true;
                 } else {
@@ -229,19 +229,19 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Adding tournament event listeners...");
         loginLogoutButton.addEventListener('click', () => {
             if (isClubAdmin) {
-                // --- Logout Logic --- 
+                // --- Logout Logic ---
                 isClubAdmin = false;
                 isAdminEditingSchedule = false; // Also reset edit mode on logout
                 loginLogoutButton.textContent = '管理员登录';
                 loginLogoutButton.classList.remove('primary');
                 loginLogoutButton.classList.add('secondary');
-                disableEditing(); 
+                disableEditing();
                 modifyScheduleButton.textContent = '修改对阵'; // Reset edit button text
                 modifyScheduleButton.classList.remove('active');
                 alert('俱乐部管理员已登出。');
                 // --- End Logout Logic ---
             } else {
-                // --- Login Attempt Logic --- 
+                // --- Login Attempt Logic ---
                 console.log("Club Admin Login button clicked. Prompting...");
                 promptForClubAdminPassword();
                 // --- End Login Attempt Logic ---
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addCourtButton?.addEventListener('click', addCourt);
         modifyScheduleButton?.addEventListener('click', toggleScheduleEditMode);
         // Rename listener function for clarity
-        // generateSummaryButton?.addEventListener('click', updateAndDisplayCumulativeStats); 
+        // generateSummaryButton?.addEventListener('click', updateAndDisplayCumulativeStats);
         // Connect the correct button
         cumulativeSummaryButton?.addEventListener('click', updateAndDisplayCumulativeStats);
 
@@ -359,26 +359,26 @@ document.addEventListener('DOMContentLoaded', () => {
         courtListDiv?.addEventListener('change', handleCourtTimeChange);
         courtListDiv?.addEventListener('click', handleRemoveCourt);
         // Add listeners for the new modal buttons
-        savePlayerChangesButton?.addEventListener('click', handleSaveChanges);        
+        savePlayerChangesButton?.addEventListener('click', handleSaveChanges);
         cancelPlayerChangesButton?.addEventListener('click', hideModifyPlayersModal);
         // Need listener for new participant inputs
         participantList.addEventListener('change', handleParticipantSettingChange);
     }
-    
+
     // --- Club Admin Password Prompt Function ---
     function promptForClubAdminPassword() {
         if (clubAdminPassword === null) { // Check if password was fetched
             alert("无法验证管理员：俱乐部密码未加载。请检查网络连接并刷新页面。");
             return;
         }
-        
+
         const enteredPassword = prompt(`请输入俱乐部 '${currentClubName}' 的管理密码:`);
-        
+
         if (enteredPassword === null) { // User cancelled
             console.log("Club admin password prompt cancelled.");
             return;
         }
-        
+
         if (enteredPassword === clubAdminPassword) {
             console.log("Club admin password verified.");
             isClubAdmin = true;
@@ -529,21 +529,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!clubId) return null;
         try {
             console.log(`Fetching cumulative stats for club: ${clubId}`);
-            
+
             const { data, error } = await supabase
                 .from('cumulative_stats')
                 .select('stats')
                 .eq('club_id', clubId)
                 .single();
-            
+
             console.log("Query response:", { data, error });
-            
+
             if (error && error.code !== 'PGRST116') {
                 // 如果有错误且不是"没有找到记录"错误
                 console.error("Error fetching cumulative stats:", error);
                 return null;
             }
-            
+
             // 如果找到了记录，返回stats字段；否则返回空对象
             return data?.stats || {};
         } catch (error) {
@@ -562,14 +562,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 .select('id')
                 .eq('club_id', clubId)
                 .single();
-                
+
             if (checkError && checkError.code !== 'PGRST116') {
                 // 如果有错误且不是"没有找到记录"错误
                 throw checkError;
             }
-            
+
             let result;
-            
+
             if (data) {
                 // 更新现有记录
                 result = await supabase
@@ -580,14 +580,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 创建新记录
                 result = await supabase
                     .from('cumulative_stats')
-                    .insert({ 
+                    .insert({
                         club_id: clubId,
                         stats: newStatsMap
                     });
             }
-            
+
             if (result.error) throw result.error;
-            
+
             console.log("Cumulative stats updated successfully in Supabase.");
             return true;
         } catch (error) {
@@ -600,15 +600,51 @@ document.addEventListener('DOMContentLoaded', () => {
     async function updateAndDisplayCumulativeStats() {
         if (!isClubAdmin) return alert("请先使用俱乐部管理密码登录。只有管理员才能更新俱乐部累计排名。");
         if (!currentClubId) return alert("错误：未识别俱乐部 ID。");
-        
+
         // Ensure current session stats are calculated
-        updateStats(); 
+        updateStats();
         if (Object.keys(playerStats).length === 0 || selectedMatches.filter(m => m.played).length === 0) {
             return alert("本次活动尚无有效比赛记录，无法更新累计排名。");
         }
 
+        // 检查当前会话是否已经保存到tournament_archives表中
+        if (currentTournamentId) {
+            // 如果已经有tournamentId，说明这个比赛已经保存过了
+            // 检查这个比赛是否已经计入了累计统计
+            try {
+                const { data: tournamentData, error: fetchError } = await supabase
+                    .from('tournament_archives')
+                    .select('*')
+                    .eq('id', currentTournamentId)
+                    .single();
+
+                if (fetchError) throw fetchError;
+
+                // 获取当前累计统计数据
+                const { data: cumulativeData, error: cumulativeError } = await supabase
+                    .from('cumulative_stats')
+                    .select('stats')
+                    .eq('club_id', currentClubId)
+                    .single();
+
+                if (cumulativeError && cumulativeError.code !== 'PGRST116') {
+                    throw cumulativeError;
+                }
+
+                // 显示当前累计统计数据
+                if (cumulativeData && cumulativeData.stats) {
+                    displayCumulativeResults(cumulativeData.stats);
+                }
+
+                return alert("当前比赛已保存，其数据已经计入累计统计。如需更新，请先删除该比赛记录，然后重新汇总。");
+            } catch (e) {
+                console.error("检查比赛记录时出错:", e);
+                // 如果出错，继续执行下面的代码
+            }
+        }
+
         console.log("Updating cumulative stats...");
-        
+
         // 1. Fetch existing cumulative stats
         const cumulativeStats = await fetchCumulativeStats(currentClubId);
         if (cumulativeStats === null) { // Check for fetch error
@@ -621,9 +657,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentStats = playerStats[name];
             if (!currentStats || currentStats.gamesPlayed === 0) {
                 // Skip players who didn't play in this session
-                return; 
+                return;
             }
-            
+
             // Get existing cumulative data for this player or initialize
             let playerCumulative = cumulativeStats[name] || {
                 activityCount: 0,
@@ -645,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`   Updated cumulative stats for ${name}:`, playerCumulative);
         });
 
-        // 3. Save updated stats back to Firestore
+        // 3. Save updated stats back to Supabase
         const saveSuccess = await updateCumulativeStats(currentClubId, cumulativeStats);
         if (!saveSuccess) {
             return alert("保存累计排名到数据库失败！");
@@ -653,8 +689,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 4. Display the updated cumulative results
         displayCumulativeResults(cumulativeStats);
-        // Remove the alert as the table is always visible
-        // alert("俱乐部累计排名已更新并显示。"); 
+
+        // 5. 提示用户保存比赛记录，以便将来可以正确处理
+        if (!currentTournamentId) {
+            alert("累计排名已更新。请记得保存比赛记录，以便将来可以正确管理累计统计数据。");
+        } else {
+            alert("累计排名已更新。");
+        }
+
         console.log("Cumulative stats updated and displayed.");
     }
 
@@ -665,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- Existing code to clear table, prepare data, sort, and populate table --- 
+        // --- Existing code to clear table, prepare data, sort, and populate table ---
         cumulativeResultsTableBody.innerHTML = ''; // Clear previous results
         if (Object.keys(cumulativeStatsMap).length === 0) {
             cumulativeResultsTableBody.innerHTML = '<tr><td colspan="6">尚无累计排名数据。</td></tr>';
@@ -682,7 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
             player.pointDiffRatio = player.pointsAgainst > 0 ? (player.pointsFor / player.pointsAgainst) : (player.pointsFor > 0 ? Infinity : 0);
         });
 
-        // Sort players 
+        // Sort players
         playersArray.sort((a, b) => {
             // ... (sorting logic remains the same)
             if (b.winRate !== a.winRate) return b.winRate - a.winRate;
@@ -709,7 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let ratioText = '-';
             if (player.pointDiffRatio === Infinity) {
                 ratioText = '∞';
-            } else if (player.pointDiffRatio >= 0) { 
+            } else if (player.pointDiffRatio >= 0) {
                 ratioText = player.pointDiffRatio.toFixed(2);
             }
             row.insertCell(5).textContent = ratioText;
@@ -735,10 +777,10 @@ document.addEventListener('DOMContentLoaded', () => {
         parsedNames = lines.map(line => {
             return line.replace(/^\d+[、.]?\s*|^姓名[:：]?\s*/, '').trim();
         }).filter(name => name);
-        
+
         // Initialize participants with default settings
-        participants = parsedNames.map(name => ({ 
-            name: name, 
+        participants = parsedNames.map(name => ({
+            name: name,
             maxConsecutive: 2, // Default max consecutive games
             arrivalOffset: 0   // Default arrival/departure offset
         }));
@@ -751,17 +793,17 @@ document.addEventListener('DOMContentLoaded', () => {
         participants.forEach((participant, index) => {
             const li = document.createElement('li');
             li.classList.add('participant-item-settings'); // Use a new class for styling if needed
-            
+
             const avatar = document.createElement('span');
             avatar.classList.add('participant-avatar');
             avatar.textContent = participant.name.charAt(0).toUpperCase();
             li.appendChild(avatar);
-            
+
             const nameSpan = document.createElement('span');
             nameSpan.classList.add('participant-name');
             nameSpan.textContent = participant.name;
             li.appendChild(nameSpan);
-            
+
             // Consecutive Games Input
             const consecutiveLabel = document.createElement('label');
             consecutiveLabel.textContent = '连续场次:';
@@ -777,7 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
             consecutiveInput.classList.add('participant-setting-input');
             consecutiveInput.disabled = !isAdmin;
             consecutiveInput.style.width = '50px'; // Adjust width
-            
+
             // Arrival/Departure Offset Input
             const offsetLabel = document.createElement('label');
             offsetLabel.textContent = '到场调整:';
@@ -798,7 +840,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.appendChild(consecutiveInput);
             li.appendChild(offsetLabel);
             li.appendChild(offsetInput);
-            
+
             participantList.appendChild(li);
         });
         participantCount.textContent = participants.length;
@@ -810,7 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleParticipantSettingChange(event) {
          if (event.target.classList.contains('participant-setting-input')) {
             if (!isClubAdmin) return;
-            
+
             const index = parseInt(event.target.dataset.index);
             const field = event.target.dataset.field;
             let value = parseInt(event.target.value);
@@ -902,7 +944,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return alert(`场地 ${court.id} 的开始时间必须早于结束时间。`);
             }
         }
-        
+
         generatePairs();
         if (allPossiblePairs.length < 2) return alert("无法生成足够的配对。");
 
@@ -913,11 +955,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pair1 = allPossiblePairs[i];
                 const pair2 = allPossiblePairs[j];
                 if (pair1.every(p => !pair2.includes(p))) {
-                     potentialMatchesPool.push({ 
+                     potentialMatchesPool.push({
                         id: `match_${i}_${j}`,
-                        team1: pair1, team2: pair2, 
-                        score1: null, score2: null, played: false, 
-                        courtId: null, startTime: null, endTime: null 
+                        team1: pair1, team2: pair2,
+                        score1: null, score2: null, played: false,
+                        courtId: null, startTime: null, endTime: null
                     });
                 }
             }
@@ -938,12 +980,12 @@ document.addEventListener('DOMContentLoaded', () => {
         courts.forEach(court => {
             const startMin = timeToMinutes(court.startTime);
             const endMin = timeToMinutes(court.endTime);
-            if (startMin === null || endMin === null || startMin >= endMin) return; 
+            if (startMin === null || endMin === null || startMin >= endMin) return;
             for (let currentTime = startMin; currentTime + gameDuration <= endMin; currentTime += gameDuration) {
                 availableSlots.push({
                     courtId: court.id,
-                    startTime: currentTime, 
-                    endTime: currentTime + gameDuration, 
+                    startTime: currentTime,
+                    endTime: currentTime + gameDuration,
                     isUsed: false,
                     gameIndex: -1 // Assign later based on scheduled order
                 });
@@ -962,11 +1004,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Initialize Player State
         let playerState = participants.reduce((acc, p) => {
-            acc[p.name] = { 
-                gameCount: 0, 
-                consecutiveGames: 0, 
+            acc[p.name] = {
+                gameCount: 0,
+                consecutiveGames: 0,
                 lastGameEndTime: -1,
-                maxConsecutive: p.maxConsecutive, 
+                maxConsecutive: p.maxConsecutive,
                 arrivalOffset: p.arrivalOffset,
                 schedulingScore: 0 // Renamed from appearanceScore
             };
@@ -985,7 +1027,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentStartTime = availableSlots[currentSlotIndex].startTime;
             // Find all available slots starting at this exact time
             const slotsAtThisTime = availableSlots.filter(slot => slot.startTime === currentStartTime && !slot.isUsed);
-            
+
             console.log(`[Scheduler Iteration ${iterations}] Processing time ${minutesToTime(currentStartTime)}. Available courts: ${slotsAtThisTime.map(s=>s.courtId).join(',')}`);
 
             let consideredInLoop = new Set();
@@ -1007,23 +1049,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     // No need for consideredInLoop if we remove scheduled matches immediately
 
                     const playersInMatch = [...potentialMatch.team1, ...potentialMatch.team2];
-                    let canSchedule = true; 
+                    let canSchedule = true;
                     // let violatesConsecutive = false; // Not needed for penalty here
 
-                    // Check Hard Constraints 
+                    // Check Hard Constraints
                     for (const playerName of playersInMatch) {
                         const pData = participants.find(p => p.name === playerName);
-                        if (!pData) { canSchedule = false; break; } 
+                        if (!pData) { canSchedule = false; break; }
                         const pState = playerState[playerName];
                         // Effective limit calculation remains the same
                         let limit = pData.maxConsecutive;
                         if (courts.length > 1) { limit += 1; }
-                        limit = Math.min(limit, 5); 
+                        limit = Math.min(limit, 5);
                         // Arrival/Departure/Simultaneous checks remain the same
                         if (pData.arrivalOffset > 0 && slot.gameIndex < pData.arrivalOffset) { canSchedule = false; break; }
                         if (pData.arrivalOffset < 0 && slot.gameIndex >= (estimatedTotalGames + pData.arrivalOffset) ){ canSchedule = false; break; }
-                        if (pState.lastGameEndTime > slot.startTime) { canSchedule = false; break; } 
-                        // Consecutive limit check - NOW A HARD CONSTRAINT AGAIN? 
+                        if (pState.lastGameEndTime > slot.startTime) { canSchedule = false; break; }
+                        // Consecutive limit check - NOW A HARD CONSTRAINT AGAIN?
                         // Based on latest request, seems like LOW SCORE is the main driver.
                         // Let's keep consecutive check as HARD for now, as penalty is applied *after* slot.
                          if (pState.lastGameEndTime === slot.startTime && pState.consecutiveGames >= limit) {
@@ -1038,14 +1080,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         let currentScore = playersInMatch.reduce((sum, p) => sum + playerState[p].schedulingScore, 0);
 
                         // NO penalty applied during selection now.
-                        
+
                         // Check if this match is the best (lowest) score so far for this slot
-                        if (currentScore < bestScore) { 
+                        if (currentScore < bestScore) {
                             bestScore = currentScore;
                             bestMatchForSlot = potentialMatch;
                             bestMatchIndex = j;
                         }
-                    } 
+                    }
                 } // End potential match loop for this slot
 
                 // Schedule best match found for this slot
@@ -1065,14 +1107,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     participants.forEach(p => {
                         const pState = playerState[p.name];
                         if (playersInScheduledMatch.includes(p.name)) {
-                            pState.gameCount++; 
+                            pState.gameCount++;
 
                             // Determine consecutive count *before* adding score
                             let newConsecutiveCount = 1;
                             if (pState.lastGameEndTime === slot.startTime) {
                                 newConsecutiveCount = pState.consecutiveGames + 1;
                             } // else, it's the 1st game after a break
-                            
+
                             // Update consecutive count for the next check
                             pState.consecutiveGames = newConsecutiveCount;
 
@@ -1119,17 +1161,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } // End loop for slots at this specific time
 
-            // --- End-of-Time-Block Processing --- 
+            // --- End-of-Time-Block Processing ---
             if (scheduledInThisTimeBlock) { // Only process if matches were actually scheduled
                  console.log(`--- Processing End of Time Block: ${minutesToTime(currentStartTime)} ---`);
                  participants.forEach(p => {
                     const pState = playerState[p.name];
                     const oldScore = pState.schedulingScore;
-                    
+
                     // Reset score (keep last 3 digits)
                     pState.schedulingScore = oldScore % 1000;
                     const scoreAfterReset = pState.schedulingScore;
-                    
+
                     // Apply penalty if consecutive limit is met/exceeded *now*
                     const pData = participants.find(pData => pData.name === p.name);
                     let limit = pData.maxConsecutive;
@@ -1162,7 +1204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
              if (!scheduledInThisTimeBlock && currentSlotIndex < availableSlots.length) {
                   console.warn(`[Scheduler] Loop terminating early: No matches could be scheduled in time block ${minutesToTime(currentStartTime)} (Iteration ${iterations}, Scheduled ${scheduledMatchesCount}).`);
-                  break; 
+                  break;
              }
 
         } // End while loop
@@ -1175,15 +1217,15 @@ document.addEventListener('DOMContentLoaded', () => {
         matchList.innerHTML = '';
         if (selectedMatches.length === 0) { matchList.innerHTML = '<p>请先生成对阵。</p>'; return; }
         selectedMatches.forEach((match, index) => {
-            const card = document.createElement('div'); 
-            card.classList.add('match-card'); 
+            const card = document.createElement('div');
+            card.classList.add('match-card');
             card.dataset.matchIndex = index;
             card.draggable = isAdminEditingSchedule; // Make draggable if in edit mode
 
-            const team1Div = createTeamDiv(match.team1); 
+            const team1Div = createTeamDiv(match.team1);
             const team2Div = createTeamDiv(match.team2);
             const vsSpan = document.createElement('span'); vsSpan.classList.add('vs'); vsSpan.textContent = 'PK';
-            
+
             // Display Court and Time
             const scheduleInfo = document.createElement('div');
             scheduleInfo.className = 'schedule-info';
@@ -1209,8 +1251,8 @@ document.addEventListener('DOMContentLoaded', () => {
             modifyPlayersButton.dataset.matchIndex = index; // Store index
             modifyPlayersButton.style.marginLeft = '5px'; // Add some spacing
             modifyPlayersButton.onclick = () => modifyMatchPlayers(index);
-            // --- FIX: Set disabled state based on isClubAdmin when creating --- 
-            modifyPlayersButton.disabled = !isClubAdmin; 
+            // --- FIX: Set disabled state based on isClubAdmin when creating ---
+            modifyPlayersButton.disabled = !isClubAdmin;
             // --- END FIX ---
             actionsDiv.appendChild(modifyPlayersButton);
 
@@ -1227,10 +1269,10 @@ document.addEventListener('DOMContentLoaded', () => {
             */
 
             card.appendChild(scheduleInfo); // Add schedule info first
-            card.appendChild(team1Div); 
-            card.appendChild(vsSpan); 
+            card.appendChild(team1Div);
+            card.appendChild(vsSpan);
             card.appendChild(team2Div);
-            card.appendChild(scoreDiv); 
+            card.appendChild(scoreDiv);
             card.appendChild(actionsDiv);
             matchList.appendChild(card);
         });
@@ -1279,7 +1321,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selects.forEach(selInfo => {
             const selectElement = selInfo.element;
             selectElement.innerHTML = ''; // Clear previous options
-            
+
             // Add a default placeholder
             const placeholder = document.createElement('option');
             placeholder.value = '';
@@ -1297,7 +1339,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectElement.appendChild(option);
             });
         });
-        
+
         // Clear previous errors and show modal
         console.log('Modal element found:', modifyPlayersModal); // <-- Added log
         modifyPlayersError.style.display = 'none';
@@ -1329,7 +1371,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedPlayers = [p1_1, p1_2, p2_1, p2_2];
 
         // Validation 1: Ensure 4 players selected
-        if (selectedPlayers.some(p => !p)) { 
+        if (selectedPlayers.some(p => !p)) {
             modifyPlayersError.textContent = '请为所有位置选择队员。';
             modifyPlayersError.style.display = 'block';
             return;
@@ -1342,7 +1384,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modifyPlayersError.style.display = 'block';
             return;
         }
-        
+
         // Validation passed, update the match data
         const originalMatch = selectedMatches[matchIndex];
         selectedMatches[matchIndex] = {
@@ -1356,7 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide modal and refresh display
         hideModifyPlayersModal();
         displayMatches(); // Update the match list UI
-        
+
         // Recalculate stats if the match was already played
         if (originalMatch.played) {
              console.log("Recalculating stats due to player change in a played match.");
@@ -1517,18 +1559,18 @@ document.addEventListener('DOMContentLoaded', () => {
             participants: participants,
             matches: selectedMatches,
             targetMatchCount: totalMatchInput.value || null,
-            courtConfig: courts, 
+            courtConfig: courts,
             gameDuration: parseInt(gameDurationInput.value) || 12 // 保存比赛时长
         };
 
         try {
-            console.log("Saving state to Supabase...", { 
+            console.log("Saving state to Supabase...", {
                 currentTournamentId,
                 saveName,
                 userId,
                 club_id: currentClubId
             });
-            
+
             // 创建一个完整的对象，确保所有字段名与数据库中的列名完全匹配
             const record = {
                 savename: saveName,
@@ -1537,9 +1579,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: new Date().toISOString(),
                 state_data: state
             };
-            
+
             console.log("Record to save:", record);
-            
+
             let result;
             if (currentTournamentId) {
                 // 更新现有记录
@@ -1547,7 +1589,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .from('tournament_archives')
                     .update(record)
                     .eq('id', currentTournamentId);
-                
+
                 if (result.error) throw result.error;
                 alert(`状态 '${saveName}' 已更新。`);
             } else {
@@ -1555,9 +1597,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 result = await supabase
                     .from('tournament_archives')
                     .insert(record);
-                
+
                 if (result.error) throw result.error;
-                
+
                 // 获取新创建的记录ID
                 const { data: newRecord, error: idError } = await supabase
                     .from('tournament_archives')
@@ -1567,11 +1609,64 @@ document.addEventListener('DOMContentLoaded', () => {
                     .order('timestamp', { ascending: false })
                     .limit(1)
                     .single();
-                
+
                 if (idError) throw idError;
-                
+
                 currentTournamentId = newRecord.id;
-                alert(`状态已保存为: ${saveName}`);
+
+                // 检查是否需要自动计入累计统计
+                // 获取当前累计统计数据
+                updateStats(); // 确保统计数据是最新的
+                const { data: cumulativeData, error: cumulativeError } = await supabase
+                    .from('cumulative_stats')
+                    .select('stats')
+                    .eq('club_id', currentClubId)
+                    .single();
+
+                if (!cumulativeError || cumulativeError.code === 'PGRST116') {
+                    // 如果成功获取数据或者是"没有找到记录"错误
+                    const cumulativeStats = cumulativeData?.stats || {};
+                    let statsUpdated = false;
+
+                    // 合并当前会话统计数据到累计统计
+                    participants.forEach(participant => {
+                        const name = participant.name;
+                        const currentStats = playerStats[name];
+                        if (!currentStats || currentStats.gamesPlayed === 0) {
+                            // 跳过本次会话中没有参与比赛的玩家
+                            return;
+                        }
+
+                        // 获取现有累计数据或初始化
+                        let playerCumulative = cumulativeStats[name] || {
+                            activityCount: 0,
+                            gamesPlayed: 0,
+                            wins: 0,
+                            pointsFor: 0,
+                            pointsAgainst: 0
+                        };
+
+                        // 更新累计数据
+                        playerCumulative.activityCount += 1;
+                        playerCumulative.gamesPlayed += currentStats.gamesPlayed;
+                        playerCumulative.wins += currentStats.wins;
+                        playerCumulative.pointsFor += currentStats.pointsFor;
+                        playerCumulative.pointsAgainst += currentStats.pointsAgainst;
+
+                        // 将更新后的数据放回主映射
+                        cumulativeStats[name] = playerCumulative;
+                        statsUpdated = true;
+                    });
+
+                    // 如果有更新，保存累计统计数据
+                    if (statsUpdated) {
+                        await updateCumulativeStats(currentClubId, cumulativeStats);
+                        // 显示更新后的累计统计数据
+                        displayCumulativeResults(cumulativeStats);
+                    }
+                }
+
+                alert(`状态已保存为: ${saveName}，并已自动计入累计统计。`);
             }
         } catch (e) {
             console.error("Error saving state to Supabase:", e);
@@ -1581,9 +1676,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showLoadFromFirestoreModal() {
         // REMOVE isClubAdmin check - Allow members to load
-        // if (!isClubAdmin) return alert("请先使用俱乐部管理密码登录。"); 
+        // if (!isClubAdmin) return alert("请先使用俱乐部管理密码登录。");
         if (!currentClubId) return alert("错误：未识别俱乐部 ID，无法加载。");
-        populateLoadModalFromFirestore(); 
+        populateLoadModalFromFirestore();
         loadModal.style.display = 'flex';
     }
 
@@ -1605,9 +1700,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 .select('*')
                 .eq('club_id', currentClubId)
                 .order('timestamp', { ascending: false });
-            
+
             if (error) throw error;
-            
+
             console.log("Fetched tournaments:", tournaments);
             savedGamesList.innerHTML = '';
 
@@ -1664,9 +1759,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 .select('*')
                 .eq('id', tournamentId)
                 .single();
-            
+
             if (error) throw error;
-            
+
             if (!tournament || tournament.club_id !== currentClubId) { // Verify club ID match
                 alert(`无法加载状态: ID ${tournamentId} 未找到或不属于此俱乐部！`);
                 populateLoadModalFromFirestore();
@@ -1674,14 +1769,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             resetApp(false); // Clear current state
-            
+
             const stateData = tournament.state_data;
-            participants = (stateData.participants || []).map(p => ({ 
-                name: p.name || '未知', 
-                maxConsecutive: p.maxConsecutive !== undefined ? p.maxConsecutive : 2, 
-                arrivalOffset: p.arrivalOffset !== undefined ? p.arrivalOffset : 0 
+            participants = (stateData.participants || []).map(p => ({
+                name: p.name || '未知',
+                maxConsecutive: p.maxConsecutive !== undefined ? p.maxConsecutive : 2,
+                arrivalOffset: p.arrivalOffset !== undefined ? p.arrivalOffset : 0
             }));
-            
+
             selectedMatches = stateData.matches || [];
             totalMatchInput.value = stateData.targetMatchCount || '';
             currentTournamentId = tournamentId; // Set the loaded tournament ID
@@ -1693,7 +1788,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (stateData.courtConfig && Array.isArray(stateData.courtConfig) && stateData.courtConfig.length > 0) {
                 courts = stateData.courtConfig;
             } else {
-                courts = [{ id: 1, startTime: '', endTime: '' }]; 
+                courts = [{ id: 1, startTime: '', endTime: '' }];
             }
             displayCourtConfig();
 
@@ -1719,27 +1814,147 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteStateFromFirestore(tournamentId) {
         // KEEP isClubAdmin check - Only admin should delete
         if (!isClubAdmin || !tournamentId) return;
-        
+
         try {
+            // 1. 首先获取要删除的汇总结果详细数据
+            const { data: tournamentData, error: fetchError } = await supabase
+                .from('tournament_archives')
+                .select('*')
+                .eq('id', tournamentId)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            if (!tournamentData || !tournamentData.club_id) {
+                throw new Error('无法获取汇总结果数据');
+            }
+
+            const clubId = tournamentData.club_id;
+            const stateData = tournamentData.state_data;
+
+            // 2. 获取当前累计统计数据
+            const { data: cumulativeData, error: cumulativeError } = await supabase
+                .from('cumulative_stats')
+                .select('stats')
+                .eq('club_id', clubId)
+                .single();
+
+            if (cumulativeError && cumulativeError.code !== 'PGRST116') {
+                throw cumulativeError;
+            }
+
+            // 3. 从累计统计中减去被删除的汇总结果数据
+            if (cumulativeData && stateData && stateData.participants && stateData.matches) {
+                const currentStats = cumulativeData.stats || {};
+
+                // 计算这次比赛中每个玩家的统计数据
+                const playerStats = {};
+
+                // 初始化玩家统计
+                stateData.participants.forEach(participant => {
+                    // 使用参与者的名称作为键
+                    const playerName = typeof participant === 'string' ? participant : participant.name;
+                    if (playerName) {
+                        playerStats[playerName] = {
+                            activityCount: 1, // 每个玩家参加一次活动
+                            gamesPlayed: 0,
+                            wins: 0,
+                            pointsFor: 0,
+                            pointsAgainst: 0
+                        };
+                    }
+                });
+
+                // 计算比赛统计
+                stateData.matches.forEach(match => {
+                    if (match.played && typeof match.score1 === 'number' && typeof match.score2 === 'number') {
+                        const { team1, team2, score1, score2 } = match;
+                        const winner = score1 > score2 ? team1 : team2;
+                        const loser = score1 > score2 ? team2 : team1;
+                        const winScore = Math.max(score1, score2);
+                        const loseScore = Math.min(score1, score2);
+
+                        // 更新获胜队伍的统计
+                        winner.forEach(player => {
+                            if (playerStats[player]) {
+                                playerStats[player].wins++;
+                                playerStats[player].pointsFor += winScore;
+                                playerStats[player].pointsAgainst += loseScore;
+                                playerStats[player].gamesPlayed++;
+                            }
+                        });
+
+                        // 更新失败队伍的统计
+                        loser.forEach(player => {
+                            if (playerStats[player]) {
+                                playerStats[player].pointsFor += loseScore;
+                                playerStats[player].pointsAgainst += winScore;
+                                playerStats[player].gamesPlayed++;
+                            }
+                        });
+                    }
+                });
+
+                // 更新累计统计数据
+                let statsUpdated = false;
+                for (const [playerName, stats] of Object.entries(playerStats)) {
+                    if (currentStats[playerName]) {
+                        // 减去该玩家在此次比赛中的数据
+                        currentStats[playerName].activityCount = Math.max(0, (currentStats[playerName].activityCount || 1) - 1);
+                        currentStats[playerName].gamesPlayed = Math.max(0, (currentStats[playerName].gamesPlayed || 0) - (stats.gamesPlayed || 0));
+                        currentStats[playerName].wins = Math.max(0, (currentStats[playerName].wins || 0) - (stats.wins || 0));
+                        currentStats[playerName].pointsFor = Math.max(0, (currentStats[playerName].pointsFor || 0) - (stats.pointsFor || 0));
+                        currentStats[playerName].pointsAgainst = Math.max(0, (currentStats[playerName].pointsAgainst || 0) - (stats.pointsAgainst || 0));
+
+                        // 如果玩家的所有数据都变为0，则从统计中移除该玩家
+                        if (currentStats[playerName].gamesPlayed === 0) {
+                            delete currentStats[playerName];
+                        }
+
+                        statsUpdated = true;
+                    }
+                }
+
+                // 只有在有更新时才保存累计统计数据
+                if (statsUpdated) {
+                    // 更新累计统计数据
+                    const { error: updateError } = await supabase
+                        .from('cumulative_stats')
+                        .update({ stats: currentStats })
+                        .eq('club_id', clubId);
+
+                    if (updateError) throw updateError;
+
+                    // 刷新累计统计显示
+                    displayCumulativeResults(currentStats);
+                    console.log("累计统计数据已更新");
+                } else {
+                    console.log("没有需要更新的累计统计数据");
+                }
+            } else {
+                console.log("没有找到累计统计数据或比赛数据不完整，无法更新累计统计");
+            }
+
+            // 4. 删除汇总结果记录
             const { error } = await supabase
                 .from('tournament_archives')
                 .delete()
                 .eq('id', tournamentId);
-            
+
             if (error) throw error;
-            
+
             // 如果当前加载的是被删除的记录，则重置应用
             if (currentTournamentId === tournamentId) {
                 resetApp(false);
                 currentTournamentId = null;
             }
-            
+
             // 刷新列表
             populateLoadModalFromFirestore();
-            alert('比赛记录已成功删除。');
+            alert('比赛记录已成功删除，并已更新累计统计数据。');
         } catch (e) {
             console.error(`删除比赛记录失败（ID: ${tournamentId}）:`, e);
-            alert('删除比赛记录失败！');
+            alert('删除比赛记录失败！' + e.message);
         }
     }
 

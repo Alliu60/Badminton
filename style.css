@@ -624,6 +624,41 @@ legend {
      border-bottom: 1px solid var(--border-color);
 }
 
+/* 汇总结果管理表格样式 */
+.summaries-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.summaries-table th,
+.summaries-table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95em;
+}
+
+.summaries-table th {
+    background-color: var(--light-color);
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.summaries-table tbody tr:nth-child(odd) {
+    background-color: #fdfdfd;
+}
+
+.summaries-table tbody tr:hover {
+    background-color: #f1f8ff;
+}
+
+.summaries-table td:last-child {
+    text-align: center;
+    width: 100px;
+}
+
 .error-message {
     color: var(--danger-color);
     font-size: 0.9em;
@@ -703,8 +738,8 @@ legend {
           width: 100%;
       }
       /* Hide labels on smallest screens */
-      .participant-item-settings label:nth-of-type(1) { grid-row: 2;} 
-      .participant-item-settings input:nth-of-type(1) { grid-row: 2;} 
-      .participant-item-settings label:nth-of-type(2) { grid-row: 3;} 
-      .participant-item-settings input:nth-of-type(2) { grid-row: 3;} 
-} 
+      .participant-item-settings label:nth-of-type(1) { grid-row: 2;}
+      .participant-item-settings input:nth-of-type(1) { grid-row: 2;}
+      .participant-item-settings label:nth-of-type(2) { grid-row: 3;}
+      .participant-item-settings input:nth-of-type(2) { grid-row: 3;}
+}
