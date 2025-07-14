@@ -923,7 +923,13 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedMatches = [];
         const n = participants.length;
         const gameDuration = parseInt(gameDurationInput.value) || 12; // Use input value or default
+        
+        // 搭档和对手重复度控制参数
+        const PARTNER_REPEAT_PENALTY = 1000; // 搭档重复惩罚权重（越高越严格避免重复）
+        const OPPONENT_REPEAT_PENALTY = 500; // 对手重复惩罚权重（越高越严格避免重复）
+        
         console.log(`Using game duration: ${gameDuration} minutes`);
+        console.log(`Partner repeat penalty: ${PARTNER_REPEAT_PENALTY}, Opponent repeat penalty: ${OPPONENT_REPEAT_PENALTY}`);
         if (gameDuration < 5 || gameDuration > 30) {
              return alert("每局时间必须在 5 到 30 分钟之间。");
         }
@@ -1010,7 +1016,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 lastGameEndTime: -1,
                 maxConsecutive: p.maxConsecutive,
                 arrivalOffset: p.arrivalOffset,
-                schedulingScore: 0 // Renamed from appearanceScore
+                schedulingScore: 0, // Renamed from appearanceScore
+                // 新增：搭档和对手重复度跟踪
+                partners: new Map(), // 记录与每个玩家作为搭档的次数
+                opponents: new Map()  // 记录与每个玩家作为对手的次数
             };
             return acc;
         }, {});
@@ -1079,7 +1088,39 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Base score = sum of scheduling scores
                         let currentScore = playersInMatch.reduce((sum, p) => sum + playerState[p].schedulingScore, 0);
 
-                        // NO penalty applied during selection now.
+                        // 新增：计算搭档和对手重复度惩罚
+                        let partnerRepeatPenalty = 0;
+                        let opponentRepeatPenalty = 0;
+                        
+                        // 检查搭档重复度
+                        const [p1, p2] = potentialMatch.team1;
+                        const [p3, p4] = potentialMatch.team2;
+                        
+                        // 队伍1内部搭档重复度
+                        const p1_p2_count = playerState[p1].partners.get(p2) || 0;
+                        partnerRepeatPenalty += p1_p2_count * PARTNER_REPEAT_PENALTY; // 使用配置的权重
+                        
+                        // 队伍2内部搭档重复度
+                        const p3_p4_count = playerState[p3].partners.get(p4) || 0;
+                        partnerRepeatPenalty += p3_p4_count * PARTNER_REPEAT_PENALTY;
+                        
+                        // 检查对手重复度
+                        // p1与p3, p4的对手关系
+                        const p1_p3_opp = playerState[p1].opponents.get(p3) || 0;
+                        const p1_p4_opp = playerState[p1].opponents.get(p4) || 0;
+                        // p2与p3, p4的对手关系
+                        const p2_p3_opp = playerState[p2].opponents.get(p3) || 0;
+                        const p2_p4_opp = playerState[p2].opponents.get(p4) || 0;
+                        
+                        opponentRepeatPenalty += (p1_p3_opp + p1_p4_opp + p2_p3_opp + p2_p4_opp) * OPPONENT_REPEAT_PENALTY; // 使用配置的权重
+                        
+                        // 总分数 = 基础分数 + 重复度惩罚（分数越高越不好）
+                        currentScore += partnerRepeatPenalty + opponentRepeatPenalty;
+                        
+                        // 调试日志：显示重复度惩罚详情（仅在有惩罚时显示）
+                        if (partnerRepeatPenalty > 0 || opponentRepeatPenalty > 0) {
+                            console.log(`    候选对阵 ${p1}-${p2} vs ${p3}-${p4}: 搭档惩罚=${partnerRepeatPenalty}, 对手惩罚=${opponentRepeatPenalty}, 总分=${currentScore}`);
+                        }
 
                         // Check if this match is the best (lowest) score so far for this slot
                         if (currentScore < bestScore) {
@@ -1154,6 +1195,40 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                     });
+                    
+                    // 新增：更新搭档和对手关系记录
+                    const [p1, p2] = bestMatchForSlot.team1;
+                    const [p3, p4] = bestMatchForSlot.team2;
+                    
+                    // 更新搭档关系
+                    const p1State = playerState[p1];
+                    const p2State = playerState[p2];
+                    const p3State = playerState[p3];
+                    const p4State = playerState[p4];
+                    
+                    // 队伍1内部搭档关系
+                    p1State.partners.set(p2, (p1State.partners.get(p2) || 0) + 1);
+                    p2State.partners.set(p1, (p2State.partners.get(p1) || 0) + 1);
+                    
+                    // 队伍2内部搭档关系
+                    p3State.partners.set(p4, (p3State.partners.get(p4) || 0) + 1);
+                    p4State.partners.set(p3, (p4State.partners.get(p3) || 0) + 1);
+                    
+                    // 更新对手关系
+                    // 队伍1 vs 队伍2
+                    p1State.opponents.set(p3, (p1State.opponents.get(p3) || 0) + 1);
+                    p1State.opponents.set(p4, (p1State.opponents.get(p4) || 0) + 1);
+                    p2State.opponents.set(p3, (p2State.opponents.get(p3) || 0) + 1);
+                    p2State.opponents.set(p4, (p2State.opponents.get(p4) || 0) + 1);
+                    
+                    // 队伍2 vs 队伍1
+                    p3State.opponents.set(p1, (p3State.opponents.get(p1) || 0) + 1);
+                    p3State.opponents.set(p2, (p3State.opponents.get(p2) || 0) + 1);
+                    p4State.opponents.set(p1, (p4State.opponents.get(p1) || 0) + 1);
+                    p4State.opponents.set(p2, (p4State.opponents.get(p2) || 0) + 1);
+                    
+                    console.log(`   更新关系记录: ${p1}-${p2} 搭档 ${p1State.partners.get(p2)} 次, ${p1}-${p3} 对战 ${p1State.opponents.get(p3)} 次`);
+                    
                     // Remove scheduled match from pool immediately
                     potentialMatchesPool.splice(bestMatchIndex, 1);
                 } else {
@@ -1208,6 +1283,34 @@ document.addEventListener('DOMContentLoaded', () => {
              }
 
         } // End while loop
+
+        // 新增：输出搭档和对手关系统计总结
+        console.log("\n=== 搭档和对手关系统计 ===");
+        participants.forEach(p => {
+            const pState = playerState[p.name];
+            console.log(`\n玩家 ${p.name}:`);
+            
+            // 搭档关系统计
+            if (pState.partners.size > 0) {
+                console.log("  搭档关系:");
+                Array.from(pState.partners.entries())
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([partner, count]) => {
+                        console.log(`    与 ${partner}: ${count} 次`);
+                    });
+            }
+            
+            // 对手关系统计
+            if (pState.opponents.size > 0) {
+                console.log("  对手关系:");
+                Array.from(pState.opponents.entries())
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([opponent, count]) => {
+                        console.log(`    对战 ${opponent}: ${count} 次`);
+                    });
+            }
+        });
+        console.log("=== 关系统计结束 ===\n");
 
        // ... (rest of function: max iterations check, final output) ...
     }
